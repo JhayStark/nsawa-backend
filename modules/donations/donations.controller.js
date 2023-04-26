@@ -15,23 +15,24 @@ const createDonation = async (req, res) => {
   try {
     const funeral = await Funeral.findById(funeralId);
     if (!funeral) return res.status(404).send("Funeral not found");
-    const keyPersonDoc = await KeyPerson.findById(keyPerson.id);
+    const keyPersonDoc = await KeyPerson.findById(keyPerson);
     if (!keyPersonDoc) return res.status(404).send("Key Person not found");
     const donation = await Donation.create({
       donorName,
-      keyPerson,
+      keyPerson: { keyPerson, name: keyPersonDoc.name },
       modeOfDonation,
       donorPhoneNumber,
       donorEmail,
       amountDonated,
     });
     if (!donation) return res.status(400).send("Donation not received");
-    const totalFuneralDonation = funeral.totalDonations + amountDonated.amount;
+    const totalFuneralDonation =
+      funeral.totalDonations + amountDonated.amount * 1;
     const totalKeyPersonDonation =
-      keyPersonDoc.totalDonations + amountDonated.amount;
+      keyPersonDoc.totalDonations + amountDonated.amount * 1;
     let totalOnlineDonation = funeral.totalOnlineDonations;
     if (modeOfDonation === "e-pay") {
-      totalOnlineDonation += amountDonated.amount;
+      totalOnlineDonation += amountDonated.amount * 1;
     }
     const totalDonors = funeral.totalDonor + 1;
     await funeral.updateOne({

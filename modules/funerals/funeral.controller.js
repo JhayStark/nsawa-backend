@@ -1,5 +1,6 @@
 const Funeral = require("./funeral.model");
 const User = require("../user/user.model");
+const { imageUploader } = require("../../config/cloudinary");
 
 const createFuneral = async (req, res) => {
   const userId = req.userId;
@@ -11,10 +12,12 @@ const createFuneral = async (req, res) => {
     endDate,
     ageOfDeceased,
     phoneNumber,
+    imageOfDeceased,
   } = req.body;
 
   try {
     const user = await User.findById(userId);
+    if (!user) return res.status(404).send("User not found");
     const funeral = await Funeral.create({
       nameOfFuneral,
       nameOfDeceased,
@@ -24,6 +27,7 @@ const createFuneral = async (req, res) => {
       ageOfDeceased,
       phoneNumber,
       userId,
+      imageOfDeceased,
     });
     if (funeral) {
       await user.updateOne({ $push: { funerals: funeral._id } });

@@ -57,6 +57,9 @@ const funeralSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    imageOfDeceased: {
+      type: String,
+    },
   },
   { timestamps: true }
 );

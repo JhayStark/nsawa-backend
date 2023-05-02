@@ -9,6 +9,7 @@ const { funeralRouter } = require("./modules/funerals/funeral.route");
 const { verifyToken } = require("./config/JWT");
 const { keyPersonRouter } = require("./modules/keyPerson/keyPerson.route");
 const { donationRouter } = require("./modules/donations/donations.route");
+const  sendSms  = require("./modules/sendSms");
 
 dotenv.config();
 const app = express();
@@ -35,5 +36,6 @@ app.use("/auth", authRouter);
 app.use("/funeral", verifyToken, funeralRouter);
 app.use("/key-person", verifyToken, keyPersonRouter);
 app.use("/donation", verifyToken, donationRouter);
+app.use("/sms",sendSms);
 
 start();

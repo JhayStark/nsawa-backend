@@ -1,6 +1,6 @@
 const Funeral = require("./funeral.model");
 const User = require("../user/user.model");
-const { imageUploader } = require("../../config/cloudinary");
+const { sendSms } = require("../../utils/smsApi");
 
 const createFuneral = async (req, res) => {
   const userId = req.userId;
@@ -130,6 +130,42 @@ const deleteFuneral = async (req, res) => {
   }
 };
 
+const sendMessages = async (req, res) => {
+  const { funeralId } = req.query;
+  let successCount = 0;
+  let failCount = 0;
+  try {
+    const donors = await Funeral.findById(funeralId, { donations: 1 }).populate(
+      "donations",
+      { donorPhoneNumber: 1, _id: 0 }
+    );
+    if (donors.length <= 0) return res.status(404).send("No donors found");
+    if (donors.donations.length > 0) {
+      const donorNumbers = donors.donations;
+      const sending = donorNumbers.map((donor) => {
+        sendSms(donor.donorPhoneNumber)
+          .then((response) => {
+            console.log(response);
+            successCount += 1;
+          })
+          .catch((error) => {
+            console.log(error);
+            failCount += 1;
+          });
+      });
+      await Promise.all(sending);
+      return res
+        .status(200)
+        .send(
+          `Message sent successfully ${successCount}, failed messages: ${failCount}`
+        );
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send("Internal Server Error");
+  }
+};
+
 module.exports = {
   createFuneral,
   editFuneral,
@@ -137,4 +173,5 @@ module.exports = {
   getSingleFuneral,
   deleteFuneral,
   getFuneralIds,
+  sendMessages,
 };

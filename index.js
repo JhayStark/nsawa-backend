@@ -18,7 +18,7 @@ app.use(helmet());
 app.use(morgan("common"));
 app.use(cors());
 
-const port = process.env.PORT;
+const port = process.env.PORT || 3000;
 
 async function start() {
   try {
